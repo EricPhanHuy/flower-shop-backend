@@ -1,0 +1,17 @@
+
+@host = https://localhost:7072
+@host = http://localhost:5263
+
+
+###
+
+###
+
+POST {{host}}/api/producttypes/create
+Content-Type: application/json
+
+{
+  
+  "typename": "wedding"
+}
+###
