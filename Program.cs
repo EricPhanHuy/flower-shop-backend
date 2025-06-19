@@ -2,15 +2,30 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
+// Using for checking OS environment
+using Pomelo.EntityFrameworkCore.MySql.Infrastructure; 
+using System.Runtime.InteropServices; 
+
+
 var builder = WebApplication.CreateBuilder(args);
+Console.WriteLine($"Current environment: {builder.Environment.EnvironmentName}");
+
+builder.Configuration
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
+    .AddEnvironmentVariables();
 
 // 🧩 Add Swagger/OpenAPI services
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // Add EF Core DbContext
+// Add Configuration for MacOS
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 36))));
 
 // Add Identity services
 builder.Services.AddIdentity<IdentityUser, IdentityRole>()
