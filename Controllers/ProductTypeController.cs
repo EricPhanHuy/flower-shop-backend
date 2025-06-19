@@ -27,26 +27,33 @@ namespace FlowerShop_BackEnd.Controllers
             return await _context.ProductTypes.ToListAsync();
         }
         [HttpPost("create")]
-        public async Task<ActionResult<ProductType>> Create()
+        public async Task<ActionResult<ProductType>> Create([FromBody] ProductType dto)
         {
-            using var reader = new StreamReader(Request.Body);
-            var body = await reader.ReadToEndAsync();
-
-
-            using var jsonDoc = JsonDocument.Parse(body);
-            var root = jsonDoc.RootElement;
-
             var productType = new ProductType
             {
-                TypeName = root.GetProperty("typename").GetString()
+                TypeName = dto.TypeName
             };
+
             _context.ProductTypes.Add(productType);
             await _context.SaveChangesAsync();
 
-            return StatusCode(201);
+            return CreatedAtAction(nameof(GetProductTypes), new { id = productType.TypeId }, productType);
+        }
+        [HttpDelete("delete/{id}")]
+        public async Task<IActionResult> DeleteTodoItem(int id)
+        {
+            var todoItem = await _context.ProductTypes.FindAsync(id);
+            if (todoItem == null)
+            {
+                return NotFound();
+            }
+
+            _context.ProductTypes.Remove(todoItem);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
         }
 
-        
 
     }
 }
