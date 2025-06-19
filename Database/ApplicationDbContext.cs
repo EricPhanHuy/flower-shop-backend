@@ -10,12 +10,14 @@ namespace FlowerShop_BackEnd.Database
         public DbSet<Product> Products { get; set; }
         public DbSet<ProductType> ProductTypes { get; set; }
 
+        public DbSet<PricingRule> PricingRules { get; set; }
+
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
         }
 
-       protected override void OnModelCreating(ModelBuilder modelBuilder)
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
@@ -62,6 +64,15 @@ namespace FlowerShop_BackEnd.Database
                     b.Property(c => c.Id).HasMaxLength(191);
                 });
             }
+            
+            modelBuilder.Entity<PricingRule>(entity =>
+            {
+                entity.Property(e => e.RuleType)
+                    .HasConversion<string>();
+
+                entity.Property(e => e.AdjustmentType)
+                    .HasConversion<string>();
+            });
         }
 
     }
