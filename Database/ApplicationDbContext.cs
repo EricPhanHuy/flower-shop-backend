@@ -11,6 +11,8 @@ namespace FlowerShop_BackEnd.Database
         public DbSet<ProductType> ProductTypes { get; set; }
 
         public DbSet<PricingRule> PricingRules { get; set; }
+        public DbSet<ChatSession> ChatSessions { get; set; }
+        public DbSet<ChatMessage> ChatMessages { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
