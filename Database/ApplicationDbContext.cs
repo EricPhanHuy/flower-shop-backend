@@ -13,6 +13,7 @@ namespace FlowerShop_BackEnd.Database
         public DbSet<PricingRule> PricingRules { get; set; }
         public DbSet<ChatSession> ChatSessions { get; set; }
         public DbSet<ChatMessage> ChatMessages { get; set; }
+        public DbSet<LoyaltyAccount> LoyaltyAccounts { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
@@ -66,7 +67,7 @@ namespace FlowerShop_BackEnd.Database
                     b.Property(c => c.Id).HasMaxLength(191);
                 });
             }
-            
+
             modelBuilder.Entity<PricingRule>(entity =>
             {
                 entity.Property(e => e.RuleType)
@@ -75,6 +76,11 @@ namespace FlowerShop_BackEnd.Database
                 entity.Property(e => e.AdjustmentType)
                     .HasConversion<string>();
             });
+            
+            modelBuilder.Entity<LoyaltyAccount>()
+                .HasOne(a => a.User)
+                .WithOne()
+                .HasForeignKey<LoyaltyAccount>(a => a.UserId);
         }
 
     }
