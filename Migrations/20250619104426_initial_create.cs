@@ -222,7 +222,6 @@ namespace FlowerShop_BackEnd.Migrations
                     Description = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     TypeId = table.Column<int>(type: "int", nullable: false),
-                    ProductTypeTypeId = table.Column<int>(type: "int", nullable: false),
                     Condition = table.Column<int>(type: "int", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
                     BasePrice = table.Column<float>(type: "float", nullable: false),
@@ -232,8 +231,8 @@ namespace FlowerShop_BackEnd.Migrations
                 {
                     table.PrimaryKey("PK_Products", x => x.ProductID);
                     table.ForeignKey(
-                        name: "FK_Products_ProductTypes_ProductTypeTypeId",
-                        column: x => x.ProductTypeTypeId,
+                        name: "FK_Products_ProductTypes_TypeId",
+                        column: x => x.TypeId,
                         principalTable: "ProductTypes",
                         principalColumn: "TypeId",
                         onDelete: ReferentialAction.Cascade);

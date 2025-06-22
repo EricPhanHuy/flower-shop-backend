@@ -1,6 +1,8 @@
-﻿using FlowerShop_BackEnd.Models;
+﻿using FlowerShop_BackEnd.Database;
+using FlowerShop_BackEnd.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 
 [ApiController]
@@ -9,11 +11,13 @@ public class AuthController : ControllerBase
 {
     private readonly UserManager<IdentityUser> _userManager;
     private readonly SignInManager<IdentityUser> _signInManager;
+    private readonly ApplicationDbContext _context;
 
-    public AuthController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager)
+    public AuthController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, ApplicationDbContext context)
     {
         _userManager = userManager;
         _signInManager = signInManager;
+        _context = context;
     }
 
     // ✅ POST: api/auth/register
@@ -22,7 +26,12 @@ public class AuthController : ControllerBase
     {
         var user = new IdentityUser { UserName = dto.Email, Email = dto.Email };
         var result = await _userManager.CreateAsync(user, dto.Password);
+        var cart = new Cart
+        {
+            UserId = user.Id
+        };
 
+        _context.Carts.Add(cart);
         if (result.Succeeded)
             return Ok("User registered");
 

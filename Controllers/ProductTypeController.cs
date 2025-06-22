@@ -6,6 +6,7 @@ using FlowerShop_BackEnd.Models;
 
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
+using FlowerShop_BackEnd.Models.DTOs;
 
 namespace FlowerShop_BackEnd.Controllers
 {
@@ -46,7 +47,30 @@ namespace FlowerShop_BackEnd.Controllers
             return StatusCode(201);
         }
 
-        
+        [HttpPut("update/{id}")]
+        public async Task<IActionResult> Update(int id, [FromBody] ProductTypeDTO dto)
+        {
+            
 
+            var existing = await _context.ProductTypes.FindAsync(id);
+            if (existing == null)
+                return NotFound();
+
+            existing.TypeName = dto.Name;
+
+            await _context.SaveChangesAsync();
+            return Ok(existing);
+        }
+
+        [HttpDelete("delete/{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var existing = await _context.ProductTypes.FindAsync(id);
+            if (existing == null)
+                return NotFound();
+            _context.ProductTypes.Remove(existing);
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
     }
 }
