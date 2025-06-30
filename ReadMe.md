@@ -8,6 +8,6 @@
 
    After running the backend application, open your browser and navigate to:
 
-   https://localhost:<port>/swagger
+   https://localhost:$port_number/swagger
 
-   Replace <port> with the actual port number shown in your terminal.
+   Replace port_number with the actual port number shown in your terminal.
