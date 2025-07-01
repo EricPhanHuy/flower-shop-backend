@@ -1,4 +1,5 @@
 ﻿using FlowerShop_BackEnd.Models;
+using FlowerShop_BackEnd.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
@@ -7,20 +8,35 @@ using System.Threading.Tasks;
 [Route("api/[controller]")]
 public class AuthController : ControllerBase
 {
-    private readonly UserManager<IdentityUser> _userManager;
-    private readonly SignInManager<IdentityUser> _signInManager;
-
-    public AuthController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager)
+    private readonly UserManager<ApplicationUser> _userManager;
+    private readonly SignInManager<ApplicationUser> _signInManager;
+    private readonly IJwtService _jwtService;
+    public AuthController(UserManager<ApplicationUser> userManager,
+                        SignInManager<ApplicationUser> signInManager,
+                        IJwtService jwtService)
     {
         _userManager = userManager;
         _signInManager = signInManager;
+        _jwtService = jwtService;
     }
 
     // ✅ POST: api/auth/register
     [HttpPost("register")]
-    public async Task<IActionResult> Register([FromBody] AccountDTO dto)
+    public async Task<IActionResult> Register([FromBody] RegisterDTO dto)
     {
-        var user = new IdentityUser { UserName = dto.Email, Email = dto.Email };
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        var user = new ApplicationUser
+        {
+            UserName = dto.Email,
+            Email = dto.Email,
+            FullName = dto.Name,
+            Address = dto.Address,
+            PhoneNumber = dto.Phone
+        };
         var result = await _userManager.CreateAsync(user, dto.Password);
 
         if (result.Succeeded)
@@ -31,14 +47,37 @@ public class AuthController : ControllerBase
 
     // ✅ POST: api/auth/login
     [HttpPost("login")]
-    public async Task<IActionResult> Login([FromBody] AccountDTO dto)
+    public async Task<IActionResult> Login([FromBody] LoginDTO dto)
     {
-        var result = await _signInManager.PasswordSignInAsync(dto.Email, dto.Password, false, false);
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
 
+        var user = await _userManager.FindByEmailAsync(dto.UserName);
+        if (user == null)
+        {
+            return Unauthorized("Invalid user");
+        }
+
+        var result = await _signInManager.PasswordSignInAsync(user.UserName!, dto.Password, false, false);
         if (result.Succeeded)
-            return Ok("Logged in");
+        {
+            var jwtToken = _jwtService.GenerateToken(user);
+            return Ok(new
+            {
+                message = "Login successfull!",
+                token = jwtToken,
+                user = new
+                {
+                    id = user.Id,
+                    email = user.Email,
+                    name = user.FullName
+                }
+            });
+        }
 
-        return Unauthorized("Invalid login attempt");
+        return Unauthorized("Wrong password");
     }
 
     // ✅ POST: api/auth/logout

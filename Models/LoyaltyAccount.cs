@@ -12,7 +12,7 @@ namespace FlowerShop_BackEnd.Models
         [ForeignKey("User")]
         public string UserId { get; set; } = default!;
 
-        public IdentityUser? User { get; set; }
+        public ApplicationUser? User { get; set; }
 
         [Required]
         public int PointsBalance { get; set; } = 0;

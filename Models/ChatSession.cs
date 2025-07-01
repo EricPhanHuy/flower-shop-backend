@@ -16,7 +16,7 @@ namespace FlowerShop_BackEnd.Models
         public string UserId { get; set; } = default!;
 
         [ForeignKey("UserId")]
-        public IdentityUser? User { get; set; }
+        public ApplicationUser? User { get; set; }
 
         [Required]
         public DateTime StartTime { get; set; }

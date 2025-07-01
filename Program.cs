@@ -1,10 +1,14 @@
 ﻿using FlowerShop_BackEnd.Database;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 // Using for checking OS environment
 using Pomelo.EntityFrameworkCore.MySql.Infrastructure; 
-using System.Runtime.InteropServices; 
+using System.Runtime.InteropServices;
+using FlowerShop_BackEnd.Services;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,6 +24,28 @@ builder.Configuration
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    var jwtConfig = builder.Configuration.GetSection("Jwt");
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = jwtConfig["Issuer"],
+        ValidAudience = jwtConfig["Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtConfig["Key"]!))
+    };
+});
+
+builder.Services.AddScoped<IJwtService, JwtService>();
+
 // Add EF Core DbContext
 // Add Configuration for MacOS
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -28,8 +54,12 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 36))));
 
 // Add Identity services
-builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+// builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+//     .AddEntityFrameworkStores<ApplicationDbContext>();
+
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
+
 
 builder.Services.Configure<IdentityOptions>(options =>
 {
