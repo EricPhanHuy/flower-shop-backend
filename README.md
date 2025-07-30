@@ -16,3 +16,12 @@
    mysql -u root -p
 
    Passworld: 12082003
+
+4. Add a Migrations after change code:
+   dotnet ef migrations add <MigrationName>
+
+   Then, use follow syntax to update
+   dotnet ef database update
+
+   If you want to remove last migration, use follow syntax:
+   dotnet ef migrations remove
