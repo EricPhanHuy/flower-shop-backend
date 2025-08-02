@@ -1,6 +1,9 @@
 ﻿using FlowerShop_BackEnd.Database;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+
 
 // Using for checking OS environment
 using Pomelo.EntityFrameworkCore.MySql.Infrastructure; 
@@ -29,8 +32,26 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 // Add Identity services
 builder.Services.AddIdentity<IdentityUser, IdentityRole>()
-    .AddEntityFrameworkStores<ApplicationDbContext>();
-
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddDefaultTokenProviders(); 
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = "jwt-issuer",
+            ValidAudience = "jwt-audience",
+           IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes("ThisIsASecureKeyOfAtLeast16Bytes"))
+        };
+    });
 builder.Services.Configure<IdentityOptions>(options =>
 {
     // Default Password settings.
