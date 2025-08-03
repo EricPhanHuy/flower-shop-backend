@@ -1,0 +1,257 @@
+### FlowerShop API Test Requests
+
+# Base URL - Update this to match your Django server
+@baseUrl = http://localhost:8000
+@authToken = 983ce7b19a85f1754dfb9ad4f8785890b725515c
+@otherUserToken = 1234567890
+
+### User Auth Endpoints ###
+
+# Register a new user
+POST {{baseUrl}}/api/auth/register/
+Content-Type: application/json
+
+{
+    "username": "testuser",
+    "email": "testuser@example.com",
+    "password": "testpassword"
+}
+###
+
+# Get auth token
+POST {{baseUrl}}/api/auth/get-auth-token/
+Content-Type: application/json
+
+{
+    "username": "testuser",
+    "password": "testpassword"
+}
+### Product Types Endpoints ###
+
+# Get all product types
+GET {{baseUrl}}/api/products/types/
+
+###
+
+### Occasions Endpoints ###
+
+# Get all occasions
+GET {{baseUrl}}/api/products/occasions/
+
+###
+
+### Products Endpoints ###
+
+# Get all products
+GET {{baseUrl}}/api/products/
+
+###
+
+# Get featured products
+GET {{baseUrl}}/api/products/featured/
+
+###
+
+# Get fresh products
+GET {{baseUrl}}/api/products/fresh/
+
+###
+
+# Get all products
+GET {{baseUrl}}/api/products/20/
+
+###
+
+# Filter products by type
+GET {{baseUrl}}/api/products/?type__name=Bouquets
+
+###
+
+# Filter products by occasion
+GET {{baseUrl}}/api/products/?occasion__name=Valentine's Day
+
+###
+
+# Filter products by price range
+GET {{baseUrl}}/api/products/?price__lt=100&price__gt=50
+
+###
+
+# Filter products by condition
+GET {{baseUrl}}/api/products/?condition=fresh
+
+###
+
+# Search products by name (case-insensitive)
+GET {{baseUrl}}/api/products/?name__icontains=rose
+
+###
+
+# Filter by multiple criteria
+GET {{baseUrl}}/api/products/?type__name=Bouquets&price__lt=100&condition=fresh
+
+###
+
+### Error Testing ###
+
+# Test invalid product type filter
+GET {{baseUrl}}/api/products/?type__name=InvalidType
+
+###
+
+# Test invalid price range
+GET {{baseUrl}}/api/products/?price__lt=abc
+
+###
+
+### Health Check ###
+
+# Check if server is running
+GET {{baseUrl}}/admin/
+
+###
+
+### CartItem Endpoints ###
+
+# Get all cart items for the authenticated user
+GET {{baseUrl}}/api/cart-items/
+Authorization: Token {{authToken}}
+
+###
+
+# Add item to cart
+POST {{baseUrl}}/api/cart-items/
+Authorization: Token {{authToken}}
+Content-Type: application/json
+
+{
+    "product_id": 1,
+    "quantity": 2
+}
+
+###
+
+# Get specific cart item
+GET {{baseUrl}}/api/cart-items/2/
+Authorization: Token {{authToken}}
+
+###
+
+# Update cart item quantity
+PUT {{baseUrl}}/api/cart-items/2/
+Authorization: Token {{authToken}}
+Content-Type: application/json
+
+{
+    "product_id": 1,
+    "quantity": 5
+}
+
+###
+
+# Partially update cart item (PATCH)
+PATCH {{baseUrl}}/api/cart-items/2/
+Authorization: Token {{authToken}}
+Content-Type: application/json
+
+{
+    "quantity": 2
+}
+
+###
+
+# Delete cart item
+DELETE {{baseUrl}}/api/cart-items/3/
+Authorization: Token {{authToken}}
+
+###
+
+# Add multiple items to cart
+POST {{baseUrl}}/api/cart-items/
+Authorization: Token {{authToken}}
+Content-Type: application/json
+
+{
+    "product_id": 2,
+    "quantity": 1
+}
+
+###
+
+# Add another item to cart
+POST {{baseUrl}}/api/cart-items/
+Authorization: Token {{authToken}}
+Content-Type: application/json
+
+{
+    "product_id": 3,
+    "quantity": 2
+}
+
+###
+
+### CartItem Error Testing ###
+
+# Test adding item without authentication
+POST {{baseUrl}}/api/cart-items/
+Content-Type: application/json
+
+{
+    "product_id": 1,
+    "quantity": 2
+}
+
+###
+
+# Test adding item with invalid product_id
+POST {{baseUrl}}/api/cart-items/
+Authorization: Token {{authToken}}
+Content-Type: application/json
+
+{
+    "product_id": 999,
+    "quantity": 2
+}
+
+###
+
+# Test adding item with negative quantity
+POST {{baseUrl}}/api/cart-items/
+Authorization: Token {{authToken}}
+Content-Type: application/json
+
+{
+    "product_id": 1,
+    "quantity": -1
+}
+
+###
+
+# Test adding item with zero quantity
+POST {{baseUrl}}/api/cart-items/
+Authorization: Token {{authToken}}
+Content-Type: application/json
+
+{
+    "product_id": 1,
+    "quantity": 0
+}
+
+###
+
+# Test updating non-existent cart item
+PUT {{baseUrl}}/api/cart-items/999/
+Authorization: Token {{authToken}}
+Content-Type: application/json
+
+{
+    "product_id": 1,
+    "quantity": 3
+}
+
+###
+
+# Test accessing cart items without authentication
+GET {{baseUrl}}/api/cart-items/
+
+###
