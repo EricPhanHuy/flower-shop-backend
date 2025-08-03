@@ -1,4 +1,33 @@
 ## Setup:
-- Install Docker and Docker Compose
-- Go into the project folder
 - docker-compose up --build
+- Log into localhost:8000/admin with username "admin" and password "florashop123" to present the admin/CMS features of the application.
+## List of implemented features:
+- [x]  Landing
+- [ ]  Listings:
+    - [x]  Display flower products
+        - [ ]  With pagination?
+    - [x]  Filter by flower type, occasion (birthday, Valentine’s Day), price range, and conditions (new/old)
+    - [ ]  Sort by price, name, date, and popularity
+- [x]  Details:
+    - [x]  View product details including image, type, condition, price, reviews, and stock
+    - [x]  Add products to cart from the detail page
+- [x]  Header: Search by name and keyword with autocomplete and filter combinations
+- [x]  Sign In
+- [x]  Sign Up
+- [ ]  Cart:
+    - [x]  Add more/Remove item/Remove entirely from cart
+        - Endpoint POST tạo 1 cart item mới, PUT để edit quantity, DELETE để xóa 1 card
+        - Model CartItem - User,  Product, Quantity
+    - [ ]  Apply dynamic pricing
+    - [x]  Checkout and payment
+- [x]  Order management
+    - [x]  Track order status
+        - User
+        - Cart items
+        - Created_at
+        - Status: Preparing, Delivering, Delivered, Cancelled
+- [x]  Admin management / CMS
+    - [x]  Manage orders (CRUD)
+    - [x]  Manage products, product categories
+    - [x]  Manage users
+    - [ ]  Generate reports
