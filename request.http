@@ -2,7 +2,7 @@
 
 # Base URL - Update this to match your Django server
 @baseUrl = http://localhost:8000
-@authToken = 983ce7b19a85f1754dfb9ad4f8785890b725515c
+@authToken = aa54a41e4cfa828cf2e0a45d7ce350c737773c8d
 @otherUserToken = 1234567890
 
 ### User Auth Endpoints ###
@@ -253,5 +253,145 @@ Content-Type: application/json
 
 # Test accessing cart items without authentication
 GET {{baseUrl}}/api/cart-items/
+
+###
+
+### Order Endpoints ###
+
+# Get all orders for the authenticated user
+GET {{baseUrl}}/api/orders/
+Authorization: Token {{authToken}}
+
+###
+
+# Create a new order from cart items
+POST {{baseUrl}}/api/orders/
+Authorization: Token {{authToken}}
+Content-Type: application/json
+
+{
+    "note": "Please deliver in the morning"
+}
+
+###
+
+# Get all orders for another user (should be empty or forbidden)
+GET {{baseUrl}}/api/orders/
+Authorization: Token {{otherUserToken}}
+
+###
+
+# Update order status to shipping
+PATCH {{baseUrl}}/api/orders/1/
+Authorization: Token {{authToken}}
+Content-Type: application/json
+
+{
+    "status": "shipping"
+}
+
+###
+
+# Update order status to completed
+PATCH {{baseUrl}}/api/orders/1/
+Authorization: Token {{authToken}}
+Content-Type: application/json
+
+{
+    "status": "completed"
+}
+
+###
+
+# Update order status to cancelled
+PATCH {{baseUrl}}/api/orders/1/
+Authorization: Token {{authToken}}
+Content-Type: application/json
+
+{
+    "status": "cancelled"
+}
+
+###
+
+# Update order status back to processing
+PATCH {{baseUrl}}/api/orders/1/
+Authorization: Token {{authToken}}
+Content-Type: application/json
+
+{
+    "status": "processing"
+}
+
+###
+
+### Order Error Testing ###
+
+# Test creating order without authentication
+POST {{baseUrl}}/api/orders/
+Content-Type: application/json
+
+{
+    "note": "Please deliver in the morning"
+}
+
+###
+
+# Test creating order with empty cart
+POST {{baseUrl}}/api/orders/
+Authorization: Token {{otherUserToken}}
+Content-Type: application/json
+
+{
+    "note": "Please deliver in the morning"
+}
+
+###
+
+# Test updating non-existent order
+PATCH {{baseUrl}}/api/orders/999/
+Authorization: Token {{authToken}}
+Content-Type: application/json
+
+{
+    "status": "shipping"
+}
+
+###
+
+# Test updating order with invalid status
+PATCH {{baseUrl}}/api/orders/1/
+Authorization: Token {{authToken}}
+Content-Type: application/json
+
+{
+    "status": "invalid_status"
+}
+
+###
+
+# Test updating order without authentication
+PATCH {{baseUrl}}/api/orders/1/
+Content-Type: application/json
+
+{
+    "status": "shipping"
+}
+
+###
+
+# Test accessing orders without authentication
+GET {{baseUrl}}/api/orders/
+
+###
+
+# Test updating another user's order (should fail)
+PATCH {{baseUrl}}/api/orders/1/
+Authorization: Token {{otherUserToken}}
+Content-Type: application/json
+
+{
+    "status": "shipping"
+}
 
 ###

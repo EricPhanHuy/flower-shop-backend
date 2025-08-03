@@ -5,6 +5,7 @@ services:
       sh -c "python manage.py makemigrations &&
              python manage.py migrate &&
              python manage.py seed_data &&
+             python manage.py createsuperuser --noinput &&
              python manage.py runserver 0.0.0.0:8000"
     volumes:
       - .:/code
@@ -16,6 +17,9 @@ services:
       - SQL_DATABASE_URL=postgresql://user:userpassword@db:5432/MASTER
       - PYTHONDONTWRITEBYTECODE=1
       - PYTHONUNBUFFERED=1
+      - DJANGO_SUPERUSER_USERNAME=admin
+      - DJANGO_SUPERUSER_EMAIL=admin@florashop.com
+      - DJANGO_SUPERUSER_PASSWORD=florashop123
 
   db:
     image: postgres
