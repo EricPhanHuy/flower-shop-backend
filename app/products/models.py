@@ -1,5 +1,7 @@
+from datetime import datetime
 from django.db import models
 from django_filters import rest_framework as filters
+from django.utils import timezone
 
 
 class ProductType(models.Model):
@@ -31,8 +33,31 @@ class Product(models.Model):
     average_rating = models.DecimalField(max_digits=2, decimal_places=1)
     total_reviews = models.PositiveIntegerField(default=0)
     price = models.DecimalField(max_digits=10, decimal_places=2)
+    condition_discount = models.DecimalField(
+        max_digits=10, decimal_places=2, default=0.00
+    )
+    pricing_rule = models.ForeignKey(
+        "pricing_rules.TimePricingRule",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
     stock = models.PositiveIntegerField(default=0)
     image_url = models.URLField(blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        # Apply default discounts based on condition
+        condition_discounts = {
+            self.ConditionChoices.FRESH: 0.00,
+            self.ConditionChoices.AGED: 0.25,
+            self.ConditionChoices.WILTED: 0.50,
+            self.ConditionChoices.CHILLED: 0.00,
+        }
+
+        if self.condition_discount == 0:  # Only set if discount not manually given
+            self.condition_discount = condition_discounts.get(self.condition, 0.00)
+
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name

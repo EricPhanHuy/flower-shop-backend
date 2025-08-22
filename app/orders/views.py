@@ -1,26 +1,55 @@
-from rest_framework.views import APIView
+from rest_framework import viewsets, permissions, status
+from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
 from orders.serializers import OrderSerializer
 from orders.models import Order
 from carts.models import CartItem
+from django.utils import timezone
 
 
-class OrderView(APIView):
-    permission_classes = [IsAuthenticated]
+class OrderViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows orders to be viewed or edited.
+    """
 
-    # Create a new order for a user that takes all items from the cart
-    def post(self, request):
-        cart_items = CartItem.objects.filter(user=request.user, order=None)
+    serializer_class = OrderSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        """
+        Only allow users to see their own orders
+        """
+        return Order.objects.filter(user=self.request.user).order_by("-created_at")
+
+    def perform_create(self, serializer):
+        """
+        Create a new order for a user that takes all items from the cart
+        """
+        cart_items = CartItem.objects.filter(user=self.request.user, order=None)
         if not cart_items.exists():
-            return Response(
-                {"error": "No items in cart"}, status=status.HTTP_400_BAD_REQUEST
-            )
+            raise Exception("No items in cart")
 
-        total_price = sum(item.product.price * item.quantity for item in cart_items)
-        order = Order.objects.create(
-            user=request.user,
+        # For fallback if needed total_price = sum(item.product.price * item.quantity for item in cart_items)
+        # Need help write the below
+        total_price = sum(
+            (
+                item.product.price
+                * (
+                    1 - item.product.condition_discount / 100
+                )  # Apply condition discount as percentage
+                * (
+                    1 - (item.product.pricing_rule.time_discount / 100)
+                    if item.product.pricing_rule is not None
+                    and item.product.pricing_rule.start_time <= timezone.now()
+                    and item.product.pricing_rule.end_time >= timezone.now()
+                    else 1
+                )  # Apply time discount as percentage only if rule is active
+            )
+            * item.quantity
+            for item in cart_items
+        )
+        order = serializer.save(
+            user=self.request.user,
             status=Order.StatusChoices.PROCESSING,
             total_price=total_price,
         )
@@ -29,20 +58,14 @@ class OrderView(APIView):
             item.order = order
             item.save()
 
-        return Response(
-            {"message": "Order created successfully"}, status=status.HTTP_201_CREATED
-        )
-
-    # Update the status of an order
-    def patch(self, request, order_id):
-        try:
-            order = Order.objects.get(id=order_id, user=request.user)
-        except Order.DoesNotExist:
-            return Response(
-                {"error": "Order not found"}, status=status.HTTP_404_NOT_FOUND
-            )
-
+    @action(detail=True, methods=["patch"])
+    def update_status(self, request, pk=None):
+        """
+        Custom action to update order status
+        """
+        order = self.get_object()
         status_ = request.data.get("status")
+
         if status_ not in dict(Order.StatusChoices.choices):
             return Response(
                 {"error": "Invalid status"}, status=status.HTTP_400_BAD_REQUEST
@@ -50,11 +73,14 @@ class OrderView(APIView):
 
         order.status = status_
         order.save()
-        serializer = OrderSerializer(order)
+        serializer = self.get_serializer(order)
         return Response(serializer.data)
 
-    # Get all orders for a user
-    def get(self, request):
-        orders = Order.objects.filter(user=request.user).order_by("-created_at")
-        serializer = OrderSerializer(orders, many=True)
-        return Response(serializer.data)
+    def create(self, request, *args, **kwargs):
+        """
+        Override create to handle cart-based order creation
+        """
+        try:
+            return super().create(request, *args, **kwargs)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)

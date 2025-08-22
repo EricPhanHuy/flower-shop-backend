@@ -2,7 +2,7 @@
 
 # Base URL - Update this to match your Django server
 @baseUrl = http://localhost:8000
-@authToken = aa54a41e4cfa828cf2e0a45d7ce350c737773c8d
+@authToken = ff88d44c9c1fc183d50070346165ebf87714c44a
 @otherUserToken = 1234567890
 
 ### User Auth Endpoints ###
@@ -12,9 +12,9 @@ POST {{baseUrl}}/api/auth/register/
 Content-Type: application/json
 
 {
-    "username": "testuser",
-    "email": "testuser@example.com",
-    "password": "testpassword"
+    "username": "ngtuankhanh",
+    "email": "ntklxag@gmail.com",
+    "password": "Ecommerce123"
 }
 ###
 
@@ -25,6 +25,15 @@ Content-Type: application/json
 {
     "username": "testuser",
     "password": "testpassword"
+}
+###
+# Get auth token
+POST {{baseUrl}}/api/auth/admin/
+Content-Type: application/json
+
+{
+    "username": "admin",
+    "password": "florashop123"
 }
 ### Product Types Endpoints ###
 
@@ -43,12 +52,12 @@ GET {{baseUrl}}/api/products/occasions/
 ### Products Endpoints ###
 
 # Get all products
-GET {{baseUrl}}/api/products/
+GET {{baseUrl}}/api/products/products/?page=2
 
 ###
 
 # Get featured products
-GET {{baseUrl}}/api/products/featured/
+GET {{baseUrl}}/api/products/products/featured/
 
 ###
 
@@ -282,7 +291,7 @@ Authorization: Token {{otherUserToken}}
 ###
 
 # Update order status to shipping
-PATCH {{baseUrl}}/api/orders/1/
+PATCH {{baseUrl}}/api/orders/1/update_status/
 Authorization: Token {{authToken}}
 Content-Type: application/json
 
@@ -293,7 +302,7 @@ Content-Type: application/json
 ###
 
 # Update order status to completed
-PATCH {{baseUrl}}/api/orders/1/
+PATCH {{baseUrl}}/api/orders/1/update_status/
 Authorization: Token {{authToken}}
 Content-Type: application/json
 
@@ -304,7 +313,7 @@ Content-Type: application/json
 ###
 
 # Update order status to cancelled
-PATCH {{baseUrl}}/api/orders/1/
+PATCH {{baseUrl}}/api/orders/1/update_status/
 Authorization: Token {{authToken}}
 Content-Type: application/json
 
@@ -315,7 +324,7 @@ Content-Type: application/json
 ###
 
 # Update order status back to processing
-PATCH {{baseUrl}}/api/orders/1/
+PATCH {{baseUrl}}/api/orders/1/update_status/
 Authorization: Token {{authToken}}
 Content-Type: application/json
 
@@ -349,7 +358,7 @@ Content-Type: application/json
 ###
 
 # Test updating non-existent order
-PATCH {{baseUrl}}/api/orders/999/
+PATCH {{baseUrl}}/api/orders/999/update_status/
 Authorization: Token {{authToken}}
 Content-Type: application/json
 
@@ -360,7 +369,7 @@ Content-Type: application/json
 ###
 
 # Test updating order with invalid status
-PATCH {{baseUrl}}/api/orders/1/
+PATCH {{baseUrl}}/api/orders/1/update_status/
 Authorization: Token {{authToken}}
 Content-Type: application/json
 
@@ -371,7 +380,7 @@ Content-Type: application/json
 ###
 
 # Test updating order without authentication
-PATCH {{baseUrl}}/api/orders/1/
+PATCH {{baseUrl}}/api/orders/1/update_status/
 Content-Type: application/json
 
 {
@@ -386,12 +395,179 @@ GET {{baseUrl}}/api/orders/
 ###
 
 # Test updating another user's order (should fail)
-PATCH {{baseUrl}}/api/orders/1/
+PATCH {{baseUrl}}/api/orders/1/update_status/
 Authorization: Token {{otherUserToken}}
 Content-Type: application/json
 
 {
     "status": "shipping"
 }
+
+
+### Pricing Rules Endpoints ###
+
+# Get all time pricing rules
+GET {{baseUrl}}/api/pricing-rules/time-pricing-rules/
+Authorization: Token {{authToken}}
+
+###
+
+# Get specific pricing rule
+GET {{baseUrl}}/api/pricing-rules/time-pricing-rules/1/
+Authorization: Token {{authToken}}
+
+###
+
+# Create a new pricing rule
+POST {{baseUrl}}/api/pricing-rules/time-pricing-rules/
+Authorization: Token {{authToken}}
+Content-Type: application/json
+
+{
+    "start_time": "2024-12-25T00:00:00Z",
+    "end_time": "2024-12-25T23:59:59Z",
+    "time_discount": "15.50"
+}
+
+###
+
+# Update pricing rule
+PUT {{baseUrl}}/api/pricing-rules/time-pricing-rules/1/
+Authorization: Token {{authToken}}
+Content-Type: application/json
+
+{
+    "start_time": "2024-12-25T00:00:00Z",
+    "end_time": "2024-12-25T23:59:59Z",
+    "time_discount": "20.00"
+}
+
+###
+
+# Partially update pricing rule
+PATCH {{baseUrl}}/api/pricing-rules/time-pricing-rules/1/
+Authorization: Token {{authToken}}
+Content-Type: application/json
+
+{
+    "time_discount": "25.50"
+}
+
+###
+
+# Delete pricing rule
+DELETE {{baseUrl}}/api/pricing-rules/time-pricing-rules/1/
+Authorization: Token {{authToken}}
+
+###
+
+### Pricing Rules Error Testing ###
+
+# Test accessing pricing rules without authentication
+GET {{baseUrl}}/api/pricing-rules/time-pricing-rules/
+
+###
+
+# Test creating pricing rule without authentication
+POST {{baseUrl}}/api/pricing-rules/time-pricing-rules/
+Content-Type: application/json
+
+{
+    "start_time": "2024-12-25T00:00:00Z",
+    "end_time": "2024-12-25T23:59:59Z",
+    "time_discount": "15.50"
+}
+
+###
+
+# Test creating pricing rule with invalid discount (negative)
+POST {{baseUrl}}/api/pricing-rules/time-pricing-rules/
+Authorization: Token {{authToken}}
+Content-Type: application/json
+
+{
+    "start_time": "2024-12-25T00:00:00Z",
+    "end_time": "2024-12-25T23:59:59Z",
+    "time_discount": "-10.00"
+}
+
+###
+
+# Test creating pricing rule with invalid discount (too high)
+POST {{baseUrl}}/api/pricing-rules/time-pricing-rules/
+Authorization: Token {{authToken}}
+Content-Type: application/json
+
+{
+    "start_time": "2024-12-25T00:00:00Z",
+    "end_time": "2024-12-25T23:59:59Z",
+    "time_discount": "150.00"
+}
+
+###
+
+# Test creating pricing rule with invalid date range (end before start)
+POST {{baseUrl}}/api/pricing-rules/time-pricing-rules/
+Authorization: Token {{authToken}}
+Content-Type: application/json
+
+{
+    "start_time": "2024-12-26T00:00:00Z",
+    "end_time": "2024-12-25T23:59:59Z",
+    "time_discount": "15.50"
+}
+
+###
+
+# Test updating non-existent pricing rule
+PUT {{baseUrl}}/api/pricing-rules/time-pricing-rules/999/
+Authorization: Token {{authToken}}
+Content-Type: application/json
+
+{
+    "start_time": "2024-12-25T00:00:00Z",
+    "end_time": "2024-12-25T23:59:59Z",
+    "time_discount": "20.00"
+}
+
+###
+
+# Test deleting non-existent pricing rule
+DELETE {{baseUrl}}/api/pricing-rules/time-pricing-rules/999/
+Authorization: Token {{authToken}}
+
+###
+
+# Test creating multiple pricing rules
+POST {{baseUrl}}/api/pricing-rules/time-pricing-rules/
+Authorization: Token {{authToken}}
+Content-Type: application/json
+
+{
+    "start_time": "2024-12-31T00:00:00Z",
+    "end_time": "2024-12-31T23:59:59Z",
+    "time_discount": "10.00"
+}
+
+###
+
+# Test creating another pricing rule
+POST {{baseUrl}}/api/pricing-rules/time-pricing-rules/
+Authorization: Token {{authToken}}
+Content-Type: application/json
+
+{
+    "start_time": "2025-01-01T00:00:00Z",
+    "end_time": "2025-01-01T23:59:59Z",
+    "time_discount": "5.00"
+}
+
+###
+
+# Test getting all pricing rules (should show multiple)
+GET {{baseUrl}}/api/pricing-rules/time-pricing-rules/
+Authorization: Token {{authToken}}
+
+###
 
 ###

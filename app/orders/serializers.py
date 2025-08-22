@@ -11,7 +11,7 @@ class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = ["id", "user", "total_price", "status", "created_at", "cart_items"]
-        read_only_fields = ["id", "created_at"]
+        read_only_fields = ["id", "created_at", "user", "total_price"]
 
     def get_cart_items(self, obj):
         cart_items = CartItem.objects.filter(order=obj)

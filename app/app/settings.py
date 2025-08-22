@@ -10,7 +10,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+import os
 from pathlib import Path
+from corsheaders.defaults import default_headers
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,7 +27,17 @@ SECRET_KEY = "django-insecure-np^d8)8*)v^g6u5@6(y5t1p3*c9!4$^-8m6_ss93+)@*tvf%rb
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+    "172.31.11.201",
+    "13.212.30.10",
+    "floraflowers-ecommerce.vercel.app",
+    "sptanalytics.me",
+    "13.228.177.163",
+]
+
+APPEND_SLASH = False
 
 
 # Application definition
@@ -35,6 +47,7 @@ INSTALLED_APPS = [
     "products",
     "orders",
     "carts",
+    "pricing_rules",
     "rest_framework",
     "rest_framework.authtoken",
     "django_filters",
@@ -66,6 +79,20 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_HEADERS = list(default_headers) + [
+    "range",  # add the header React Admin is sending
+]
+
+CORS_ALLOW_METHODS = [
+    "DELETE",
+    "GET",
+    "OPTIONS",
+    "PATCH",
+    "POST",
+    "PUT",
+]
+
 
 ROOT_URLCONF = "app.urls"
 
@@ -94,11 +121,11 @@ WSGI_APPLICATION = "app.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "MASTER",
-        "USER": "user",
-        "PASSWORD": "userpassword",
-        "HOST": "db",
-        "PORT": "5432",
+        "NAME": os.environ.get("SQL_DATABASE_NAME", "MASTER"),
+        "USER": os.environ.get("SQL_DATABASE_USER", "user"),
+        "PASSWORD": os.environ.get("SQL_DATABASE_PASSWORD", "userpassword"),
+        "HOST": os.environ.get("SQL_DATABASE_HOST", "localhost"),
+        "PORT": os.environ.get("SQL_DATABASE_PORT", "5432"),
     }
 }
 

@@ -4,9 +4,9 @@ from . import views
 
 # Create a router and register our viewsets with it.
 router = DefaultRouter()
-router.register(r"products", views.ProductViewSet, basename="product")
-router.register(r"types", views.ProductTypeViewSet, basename="producttype")
-router.register(r"occasions", views.OccasionViewSet, basename="occasion")
+router.register(
+    r"time-pricing-rules", views.TimePricingRuleViewSet, basename="timepricingrule"
+)
 
 # The API URLs are now determined automatically by the router.
 urlpatterns = [

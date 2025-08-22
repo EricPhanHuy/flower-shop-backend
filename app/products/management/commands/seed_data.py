@@ -1,6 +1,8 @@
 from django.core.management.base import BaseCommand
 from django.db import transaction
+from django.utils import timezone
 from products.models import ProductType, Occasion, Product
+from pricing_rules.models import TimePricingRule
 from decimal import Decimal
 import random
 
@@ -16,8 +18,11 @@ class Command(BaseCommand):
             self.stdout.write("Creating occasions...")
             occasions = self.create_occasions()
 
+            self.stdout.write("Creating time pricing rules...")
+            pricing_rules = self.create_pricing_rules()
+
             self.stdout.write("Creating products...")
-            self.create_products(product_types, occasions)
+            self.create_products(product_types, occasions, pricing_rules)
 
             self.stdout.write(self.style.SUCCESS("Successfully seeded database!"))
 
@@ -69,7 +74,74 @@ class Command(BaseCommand):
 
         return occasions
 
-    def create_products(self, product_types, occasions):
+    def create_pricing_rules(self):
+        # Create some sample time-based pricing rules
+        pricing_rules_data = [
+            {
+                "name": "Weekend Special",
+                "start_time": timezone.now().replace(
+                    hour=9, minute=0, second=0, microsecond=0
+                ),
+                "end_time": timezone.now().replace(
+                    hour=17, minute=0, second=0, microsecond=0
+                ),
+                "time_discount": Decimal("10.00"),  # $10 discount
+            },
+            {
+                "name": "Evening Discount",
+                "start_time": timezone.now().replace(
+                    hour=18, minute=0, second=0, microsecond=0
+                ),
+                "end_time": timezone.now().replace(
+                    hour=22, minute=0, second=0, microsecond=0
+                ),
+                "time_discount": Decimal("15.00"),  # $15 discount
+            },
+            {
+                "name": "Morning Rush",
+                "start_time": timezone.now().replace(
+                    hour=7, minute=0, second=0, microsecond=0
+                ),
+                "end_time": timezone.now().replace(
+                    hour=10, minute=0, second=0, microsecond=0
+                ),
+                "time_discount": Decimal("5.00"),  # $5 discount
+            },
+            {
+                "name": "Late Night Deal",
+                "start_time": timezone.now().replace(
+                    hour=22, minute=0, second=0, microsecond=0
+                ),
+                "end_time": timezone.now().replace(
+                    hour=23, minute=59, second=59, microsecond=999999
+                ),
+                "time_discount": Decimal("20.00"),  # $20 discount
+            },
+        ]
+
+        pricing_rules = []
+        for rule_data in pricing_rules_data:
+            # For demo purposes, we'll create rules that repeat weekly
+            from datetime import timedelta
+
+            # start_time = rule_data["start_time"]
+            # end_time = rule_data["end_time"]
+
+            # Create rule for this week
+            rule, created = TimePricingRule.objects.get_or_create(
+                # start_time=start_time,
+                # end_time=end_time,
+                defaults={
+                    "time_discount": rule_data["time_discount"],
+                },
+            )
+            pricing_rules.append(rule)
+            if created:
+                self.stdout.write(f"Created pricing rule: {rule_data['name']}")
+
+        return pricing_rules
+
+    def create_products(self, product_types, occasions, pricing_rules=None):
         products_data = [
             {
                 "name": "Classic Red Rose Bouquet",
@@ -77,6 +149,7 @@ class Command(BaseCommand):
                 "type": "Bouquets",
                 "occasion": "Valentine's Day",
                 "condition": "fresh",
+                "condition_discount": 0.00,
                 "average_rating": 4.8,
                 "total_reviews": 156,
                 "price": 89.99,
@@ -89,6 +162,7 @@ class Command(BaseCommand):
                 "type": "Arrangements",
                 "occasion": "Wedding",
                 "condition": "fresh",
+                "condition_discount": 0.00,
                 "average_rating": 4.9,
                 "total_reviews": 89,
                 "price": 149.99,
@@ -101,6 +175,7 @@ class Command(BaseCommand):
                 "type": "Bouquets",
                 "occasion": "Birthday",
                 "condition": "fresh",
+                "condition_discount": 0.00,
                 "average_rating": 4.6,
                 "total_reviews": 203,
                 "price": 59.99,
@@ -113,6 +188,7 @@ class Command(BaseCommand):
                 "type": "Premium Flowers",
                 "occasion": "Anniversary",
                 "condition": "fresh",
+                "condition_discount": 0.00,
                 "average_rating": 4.7,
                 "total_reviews": 67,
                 "price": 119.99,
@@ -125,6 +201,7 @@ class Command(BaseCommand):
                 "type": "Seasonal Collections",
                 "occasion": "Mother's Day",
                 "condition": "fresh",
+                "condition_discount": 0.00,
                 "average_rating": 4.5,
                 "total_reviews": 134,
                 "price": 79.99,
@@ -137,6 +214,7 @@ class Command(BaseCommand):
                 "type": "Arrangements",
                 "occasion": "Sympathy",
                 "condition": "fresh",
+                "condition_discount": 0.00,
                 "average_rating": 4.4,
                 "total_reviews": 45,
                 "price": 99.99,
@@ -149,6 +227,7 @@ class Command(BaseCommand):
                 "type": "Bouquets",
                 "occasion": "Graduation",
                 "condition": "fresh",
+                "condition_discount": 0.00,
                 "average_rating": 4.6,
                 "total_reviews": 78,
                 "price": 69.99,
@@ -161,6 +240,7 @@ class Command(BaseCommand):
                 "type": "Budget Options",
                 "occasion": "Get Well",
                 "condition": "fresh",
+                "condition_discount": 0.00,
                 "average_rating": 4.3,
                 "total_reviews": 92,
                 "price": 39.99,
@@ -173,6 +253,7 @@ class Command(BaseCommand):
                 "type": "Single Flowers",
                 "occasion": "Thank You",
                 "condition": "fresh",
+                "condition_discount": 0.00,
                 "average_rating": 4.2,
                 "total_reviews": 156,
                 "price": 29.99,
@@ -185,6 +266,7 @@ class Command(BaseCommand):
                 "type": "Potted Plants",
                 "occasion": "Corporate",
                 "condition": "fresh",
+                "condition_discount": 0.00,
                 "average_rating": 4.4,
                 "total_reviews": 34,
                 "price": 89.99,
@@ -197,6 +279,7 @@ class Command(BaseCommand):
                 "type": "Premium Flowers",
                 "occasion": "Valentine's Day",
                 "condition": "fresh",
+                "condition_discount": 0.00,
                 "average_rating": 4.9,
                 "total_reviews": 234,
                 "price": 129.99,
@@ -209,6 +292,7 @@ class Command(BaseCommand):
                 "type": "Seasonal Collections",
                 "occasion": "Just Because",
                 "condition": "fresh",
+                "condition_discount": 0.00,
                 "average_rating": 4.4,
                 "total_reviews": 87,
                 "price": 49.99,
@@ -221,6 +305,7 @@ class Command(BaseCommand):
                 "type": "Bouquets",
                 "occasion": "Wedding",
                 "condition": "fresh",
+                "condition_discount": 0.00,
                 "average_rating": 4.8,
                 "total_reviews": 112,
                 "price": 179.99,
@@ -233,6 +318,7 @@ class Command(BaseCommand):
                 "type": "Bouquets",
                 "occasion": "Congratulations",
                 "condition": "fresh",
+                "condition_discount": 0.00,
                 "average_rating": 4.6,
                 "total_reviews": 156,
                 "price": 64.99,
@@ -245,6 +331,7 @@ class Command(BaseCommand):
                 "type": "Arrangements",
                 "occasion": "Father's Day",
                 "condition": "fresh",
+                "condition_discount": 0.00,
                 "average_rating": 4.5,
                 "total_reviews": 78,
                 "price": 89.99,
@@ -257,6 +344,7 @@ class Command(BaseCommand):
                 "type": "Seasonal Collections",
                 "occasion": "Holiday",
                 "condition": "fresh",
+                "condition_discount": 0.00,
                 "average_rating": 4.3,
                 "total_reviews": 92,
                 "price": 74.99,
@@ -269,6 +357,7 @@ class Command(BaseCommand):
                 "type": "Single Flowers",
                 "occasion": "Just Because",
                 "condition": "fresh",
+                "condition_discount": 0.00,
                 "average_rating": 4.2,
                 "total_reviews": 203,
                 "price": 19.99,
@@ -281,6 +370,7 @@ class Command(BaseCommand):
                 "type": "Potted Plants",
                 "occasion": "Corporate",
                 "condition": "fresh",
+                "condition_discount": 0.00,
                 "average_rating": 4.4,
                 "total_reviews": 67,
                 "price": 59.99,
@@ -293,6 +383,7 @@ class Command(BaseCommand):
                 "type": "Bouquets",
                 "occasion": "Birthday",
                 "condition": "fresh",
+                "condition_discount": 0.00,
                 "average_rating": 4.7,
                 "total_reviews": 145,
                 "price": 79.99,
@@ -305,6 +396,7 @@ class Command(BaseCommand):
                 "type": "Premium Flowers",
                 "occasion": "Anniversary",
                 "condition": "fresh",
+                "condition_discount": 0.00,
                 "average_rating": 4.8,
                 "total_reviews": 89,
                 "price": 139.99,
@@ -317,6 +409,7 @@ class Command(BaseCommand):
                 "type": "Seasonal Collections",
                 "occasion": "Just Because",
                 "condition": "fresh",
+                "condition_discount": 0.00,
                 "average_rating": 4.5,
                 "total_reviews": 123,
                 "price": 54.99,
@@ -329,6 +422,7 @@ class Command(BaseCommand):
                 "type": "Arrangements",
                 "occasion": "Sympathy",
                 "condition": "fresh",
+                "condition_discount": 0.00,
                 "average_rating": 4.3,
                 "total_reviews": 56,
                 "price": 69.99,
@@ -341,6 +435,7 @@ class Command(BaseCommand):
                 "type": "Bouquets",
                 "occasion": "Get Well",
                 "condition": "fresh",
+                "condition_discount": 0.00,
                 "average_rating": 4.4,
                 "total_reviews": 78,
                 "price": 59.99,
@@ -353,6 +448,7 @@ class Command(BaseCommand):
                 "type": "Bouquets",
                 "occasion": "Thank You",
                 "condition": "fresh",
+                "condition_discount": 0.00,
                 "average_rating": 4.6,
                 "total_reviews": 134,
                 "price": 84.99,
@@ -365,6 +461,7 @@ class Command(BaseCommand):
                 "type": "Premium Flowers",
                 "occasion": "Wedding",
                 "condition": "fresh",
+                "condition_discount": 0.00,
                 "average_rating": 4.9,
                 "total_reviews": 67,
                 "price": 249.99,
@@ -377,6 +474,7 @@ class Command(BaseCommand):
                 "type": "Budget Options",
                 "occasion": "Just Because",
                 "condition": "fresh",
+                "condition_discount": 0.00,
                 "average_rating": 4.2,
                 "total_reviews": 189,
                 "price": 34.99,
@@ -393,6 +491,13 @@ class Command(BaseCommand):
                 occ for occ in occasions if occ.name == product_data["occasion"]
             )
 
+            # Assign pricing rules to some products for demonstration
+            assigned_pricing_rule = None
+            if (
+                pricing_rules and random.random() < 0.3
+            ):  # 30% chance to assign a pricing rule
+                assigned_pricing_rule = random.choice(pricing_rules)
+
             product, created = Product.objects.get_or_create(
                 name=product_data["name"],
                 defaults={
@@ -400,13 +505,20 @@ class Command(BaseCommand):
                     "type": product_type,
                     "occasion": occasion,
                     "condition": product_data["condition"],
+                    "condition_discount": product_data["condition_discount"],
                     "average_rating": product_data["average_rating"],
                     "total_reviews": product_data["total_reviews"],
                     "price": product_data["price"],
+                    "pricing_rule": assigned_pricing_rule,
                     "stock": product_data["stock"],
                     "image_url": product_data["image_url"],
                 },
             )
 
             if created:
-                self.stdout.write(f"Created product: {product.name}")
+                if assigned_pricing_rule:
+                    self.stdout.write(
+                        f"Created product: {product.name} with pricing rule: {assigned_pricing_rule}"
+                    )
+                else:
+                    self.stdout.write(f"Created product: {product.name}")
