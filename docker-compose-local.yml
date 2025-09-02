@@ -3,6 +3,7 @@ services:
     build: .
     command: >
       sh -c "python manage.py makemigrations &&
+              python manage.py makemigrations user_auth products orders carts pricing_rules &&
              python manage.py migrate &&
              python manage.py seed_data &&
              python manage.py createsuperuser --noinput &&
@@ -14,7 +15,12 @@ services:
     depends_on:
       - db
     environment:
-      - SQL_DATABASE_URL=postgresql://user:userpassword@db:5432/MASTER
+      - SQL_DATABASE_URL=postgresql://user:userpassword@db/MASTER
+      - SQL_DATABASE_NAME=MASTER
+      - SQL_DATABASE_USER=user
+      - SQL_DATABASE_PASSWORD=userpassword
+      - SQL_DATABASE_HOST=db
+      - SQL_DATABASE_PORT=5432
       - PYTHONDONTWRITEBYTECODE=1
       - PYTHONUNBUFFERED=1
       - DJANGO_SUPERUSER_USERNAME=admin

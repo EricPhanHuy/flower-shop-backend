@@ -2,7 +2,7 @@
 
 # Base URL - Update this to match your Django server
 @baseUrl = http://localhost:8000
-@authToken = ff88d44c9c1fc183d50070346165ebf87714c44a
+@authToken = 94c3165a0730227f226e8a2ba658c82f3573d5e7
 @otherUserToken = 1234567890
 
 ### User Auth Endpoints ###
@@ -13,7 +13,6 @@ Content-Type: application/json
 
 {
     "username": "ngtuankhanh",
-    "email": "ntklxag@gmail.com",
     "password": "Ecommerce123"
 }
 ###
@@ -23,8 +22,8 @@ POST {{baseUrl}}/api/auth/get-auth-token/
 Content-Type: application/json
 
 {
-    "username": "testuser",
-    "password": "testpassword"
+    "username": "ngtuankhanh",
+    "password": "Ecommerce123"
 }
 ###
 # Get auth token
@@ -62,54 +61,54 @@ GET {{baseUrl}}/api/products/products/featured/
 ###
 
 # Get fresh products
-GET {{baseUrl}}/api/products/fresh/
+GET {{baseUrl}}/api/products/products/fresh/
 
 ###
 
 # Get all products
-GET {{baseUrl}}/api/products/20/
+GET {{baseUrl}}/api/products/products/20/
 
 ###
 
 # Filter products by type
-GET {{baseUrl}}/api/products/?type__name=Bouquets
+GET {{baseUrl}}/api/products/products/?type__name=Bouquets
 
 ###
 
 # Filter products by occasion
-GET {{baseUrl}}/api/products/?occasion__name=Valentine's Day
+GET {{baseUrl}}/api/products/products/?occasion__name=Valentine's Day
 
 ###
 
 # Filter products by price range
-GET {{baseUrl}}/api/products/?price__lt=100&price__gt=50
+GET {{baseUrl}}/api/products/products/?price__lt=100&price__gt=50
 
 ###
 
 # Filter products by condition
-GET {{baseUrl}}/api/products/?condition=fresh
+GET {{baseUrl}}/api/products/products/?condition=fresh
 
 ###
 
 # Search products by name (case-insensitive)
-GET {{baseUrl}}/api/products/?name__icontains=rose
+GET {{baseUrl}}/api/products/products/?name__icontains=rose
 
 ###
 
 # Filter by multiple criteria
-GET {{baseUrl}}/api/products/?type__name=Bouquets&price__lt=100&condition=fresh
+GET {{baseUrl}}/api/products/products/?type__name=Bouquets&price__lt=100&condition=fresh
 
 ###
 
 ### Error Testing ###
 
 # Test invalid product type filter
-GET {{baseUrl}}/api/products/?type__name=InvalidType
+GET {{baseUrl}}/api/products/products/?type__name=InvalidType
 
 ###
 
 # Test invalid price range
-GET {{baseUrl}}/api/products/?price__lt=abc
+GET {{baseUrl}}/api/products/products/?price__lt=abc
 
 ###
 

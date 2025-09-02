@@ -1,0 +1,21 @@
+services:
+  web:
+    build: .
+    command: >
+      sh -c "python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    environment:
+      - SQL_DATABASE_URL=postgresql://postgres:XsPMujfEdt3Z4Eu4SdoW@flowershop.cbe2644ag4el.ap-southeast-1.rds.amazonaws.com/postgres
+      - SQL_DATABASE_NAME=postgres
+      - SQL_DATABASE_USER=postgres
+      - SQL_DATABASE_PASSWORD=XsPMujfEdt3Z4Eu4SdoW
+      - SQL_DATABASE_HOST=flowershop.cbe2644ag4el.ap-southeast-1.rds.amazonaws.com
+      - SQL_DATABASE_PORT=5432
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
+      - DJANGO_SUPERUSER_USERNAME=admin
+      - DJANGO_SUPERUSER_EMAIL=admin@florashop.com
+      - DJANGO_SUPERUSER_PASSWORD=florashop123
